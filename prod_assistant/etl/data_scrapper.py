@@ -19,7 +19,7 @@ class FlipkartScraper:
         options = uc.ChromeOptions()
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-blink-features=AutomationControlled")
-        driver = uc.Chrome(options=options,use_subprocess=True)
+        driver = uc.Chrome(version_main=142, options=options, use_subprocess=True)
 
         if not product_url.startswith("http"):
             return "No reviews found"
@@ -57,9 +57,18 @@ class FlipkartScraper:
     
     def scrape_flipkart_products(self, query, max_products=1, review_count=2):
         """Scrape Flipkart products based on a search query.
-        """
+    """
+        print("DEBUG: data_scrapper loaded from:", __file__)
+
         options = uc.ChromeOptions()
-        driver = uc.Chrome(version_main=139,options=options,use_subprocess=True)
+        driver = uc.Chrome(version_main=142, options=options, use_subprocess=True)
+
+        # After driver is created, inspect what uc decided:
+        try:
+            print("DEBUG: uc driver version_main:", getattr(driver, "patcher", None).version_main)
+        except Exception as e:
+            print("DEBUG: could not read patcher.version_main:", e)("DEBUG: running UPDATED scrape_flipkart_products")
+        
         search_url = f"https://www.flipkart.com/search?q={query.replace(' ', '+')}"
         driver.get(search_url)
         time.sleep(4)
