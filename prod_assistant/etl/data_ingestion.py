@@ -6,6 +6,14 @@ from langchain_core.documents import Document
 from langchain_astradb import AstraDBVectorStore
 from prod_assistant.utils.model_loader import ModelLoader
 from prod_assistant.utils.config_loader import load_config
+import math
+
+try:
+    # pandas provides a reliable isna
+    from pandas import isna as _pd_isna
+except Exception:
+    def _pd_isna(x):
+        return x is None
 
 class DataIngestion:
     """
@@ -92,7 +100,35 @@ class DataIngestion:
                     "total_reviews": entry["total_reviews"],
                     "price": entry["price"]
             }
-            doc = Document(page_content=entry["top_reviews"], metadata=metadata)
+            # Sanitize metadata values to be JSON-safe (no NaN/inf)
+            def _sanitize_value(v):
+                # pandas NaN check
+                try:
+                    if _pd_isna(v):
+                        return None
+                except Exception:
+                    pass
+
+                # convert numpy/pandas scalar types to native python
+                try:
+                    # numpy scalar has .item()
+                    if hasattr(v, "item"):
+                        v = v.item()
+                except Exception:
+                    pass
+
+                # floats: ensure finite
+                if isinstance(v, float):
+                    if math.isfinite(v):
+                        return float(v)
+                    return None
+
+                # ints and other simple types are fine
+                return v
+
+            sanitized_meta = {k: _sanitize_value(v) for k, v in metadata.items()}
+
+            doc = Document(page_content=str(entry["top_reviews"] or ""), metadata=sanitized_meta)
             documents.append(doc)
 
         print(f"Transformed {len(documents)} documents.")
@@ -120,6 +156,9 @@ class DataIngestion:
         Run the full data ingestion pipeline: transform data and store into vector DB.
         """
         documents = self.transform_data()
+        if not documents:
+            print("No documents to store. Check that the CSV has data or that transformation produced documents.")
+            return None
         vstore, _ = self.store_in_vector_db(documents)
 
         #Optionally do a quick search

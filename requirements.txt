@@ -7,6 +7,7 @@ langchain-astradb==0.6.1
 langchain_core==0.3.75
 langchain-google-genai==2.1.8
 langchain-groq==0.3.6
+langgraph==0.6.7 
 lxml==6.0.1
 python-dotenv==1.1.1
 python-multipart==0.0.20
@@ -15,3 +16,5 @@ streamlit==1.49.1
 undetected-chromedriver==3.5.5
 uvicorn==0.35.0
 structlog==25.4.0
+
+-e .
