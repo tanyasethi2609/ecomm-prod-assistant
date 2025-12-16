@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]         # PEP 660 editable support ke liye naya setuptools
+requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -15,14 +15,13 @@ dependencies = [
     "streamlit==1.49.1",
 ]
 
-# Optional: authors, license
 authors = [{ name = "Tanya Sethi" }]
 license = { text = "Proprietary" }
 
-# Optional: CLI command (python -m pip install -e . ke baad yeh create hoga)
 [project.scripts]
-ecomm-assistant = "ecomm_prod_assistant.cli:main"
+# assumes you have prod_assistant/cli.py with a main() function
+ecomm-assistant = "prod_assistant.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["prod_assistant", "prod_assistant.*"]
-include = ["ecomm_prod_assistant*"]
+where = ["."]
+include = ["prod_assistant", "prod_assistant.*"]

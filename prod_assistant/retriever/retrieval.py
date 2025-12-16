@@ -1,11 +1,15 @@
 import os
 from langchain_astradb import AstraDBVectorStore
-from utils.config_loader import load_config
-from utils.model_loader import ModelLoader
+from prod_assistant.utils.config_loader import load_config
+from prod_assistant.utils.model_loader import ModelLoader
+from prod_assistant.evaluation.ragas_eval import (
+    evaluate_context_precision,
+    evaluate_response_relevancy,
+)
+
 from dotenv import load_dotenv
 from langchain.retrievers.document_compressors import LLMChainFilter
 from langchain.retrievers import ContextualCompressionRetriever
-from evaluation.ragas_eval import evaluate_context_precision, evaluate_response_relevancy
 # Add the project root to the Python path for direct script execution
 # project_root = Path(__file__).resolve().parents[2]
 # sys.path.insert(0, str(project_root))
@@ -61,17 +65,18 @@ class Retriever:
                                 "score_threshold": 0.6
                                })
             print("Retriever loaded successfully.")
+        return mmr_retriever
             
-            llm = self.model_loader.load_llm()
+        #     llm = self.model_loader.load_llm()
             
-            compressor=LLMChainFilter.from_llm(llm)
+        #     compressor=LLMChainFilter.from_llm(llm)
             
-            self.retriever_instance = ContextualCompressionRetriever(
-                base_compressor=compressor, 
-                base_retriever=mmr_retriever
-            )
+        #     self.retriever_instance = ContextualCompressionRetriever(
+        #         base_compressor=compressor, 
+        #         base_retriever=mmr_retriever
+        #     )
             
-        return self.retriever_instance
+        # return self.retriever_instance
             
     def call_retriever(self,query):
         """_summary_
@@ -86,25 +91,23 @@ if __name__=='__main__':
     retriever_obj = Retriever()
     
     retrieved_docs = retriever_obj.call_retriever(user_query)
+    # print("\n--- Retrieved Documents ---", retrieved_docs)
+    for idx, doc in enumerate(retrieved_docs, 1):
+        print(f"Document {idx}:\n{doc.page_content}\nMetadata: {doc.metadata}\n")
     
-    def _format_docs(docs) -> str:
-        if not docs:
-            return "No relevant documents found."
-        formatted_chunks = []
-        for d in docs:
-            meta = d.metadata or {}
-            formatted = (
-                f"Title: {meta.get('product_title', 'N/A')}\n"
-                f"Price: {meta.get('price', 'N/A')}\n"
-                f"Rating: {meta.get('rating', 'N/A')}\n"
-                f"Reviews:\n{d.page_content.strip()}"
-            )
-            formatted_chunks.append(formatted)
-        return "\n\n---\n\n".join(formatted_chunks)
+    def _format_doc(d) -> str:
+        meta = d.metadata or {}
+        return (
+            f"Title: {meta.get('product_title', 'N/A')}\n"
+            f"Price: {meta.get('price', 'N/A')}\n"
+            f"Rating: {meta.get('rating', 'N/A')}\n"
+            f"Reviews:\n{d.page_content.strip()}"
+        )
+
+    retrieved_contexts = [_format_doc(d) for d in retrieved_docs]
+
     
-    retrieved_contexts = [_format_docs(doc) for doc in retrieved_docs]
-    
-    #this is not an actual output this have been written to test the pipeline
+    # #this is not an actual output this have been written to test the pipeline
     response="iphone 16 plus, iphone 16, iphone 15 are best phones under 1,00,000 INR."
     
     context_score = evaluate_context_precision(user_query,response,retrieved_contexts)
