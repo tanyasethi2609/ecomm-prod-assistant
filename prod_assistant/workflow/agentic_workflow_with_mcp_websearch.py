@@ -6,10 +6,10 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
 
-from prompt_library.prompts import PROMPT_REGISTRY, PromptType
-from retriever.retrieval import Retriever
-from utils.model_loader import ModelLoader
-from evaluation.ragas_eval import evaluate_context_precision, evaluate_response_relevancy
+from prod_assistant.prompt_library.prompts import PROMPT_REGISTRY, PromptType
+from prod_assistant.retriever.retrieval import Retriever
+from prod_assistant.utils.model_loader import ModelLoader
+from prod_assistant.evaluation.ragas_eval import evaluate_context_precision, evaluate_response_relevancy
 from langchain_mcp_adapters.client import MultiServerMCPClient
 import asyncio
 
@@ -184,5 +184,5 @@ class AgenticRAG:
 # ---------- Standalone Test ----------
 if __name__ == "__main__":
     rag_agent = AgenticRAG()
-    answer = rag_agent.run("What is the price of iPhone 16?")
+    answer = asyncio.run(rag_agent.run("What is the price of Google Pixel 10?"))
     print("\nFinal Answer:\n", answer)
