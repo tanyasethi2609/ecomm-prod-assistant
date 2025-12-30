@@ -1,29 +1,64 @@
 name: Provision Infra (EKS + ECR)
 
 on:
-  workflow_dispatch: # manual trigger only
+  workflow_dispatch:
 
 jobs:
   provision:
     runs-on: ubuntu-latest
+    env:
+      STACK_NAME: product-assistant-cluster
+      AWS_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Configure AWS credentials
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Deploy CloudFormation Stack
+      - name: Who am I (sanity check)
+        run: aws sts get-caller-identity
+
       - name: Deploy CloudFormation Stack
+        id: cfn
         run: |
+          set +e
           aws cloudformation deploy \
-            --stack-name product-assistant-cluster \
+            --stack-name "$STACK_NAME" \
             --template-file infra/eks-with-ecr.yml \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --region ${{ secrets.AWS_REGION }}
+            --no-fail-on-empty-changeset
+          rc=$?
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Dump CloudFormation failure details
+        if: steps.cfn.outputs.rc != '0'
+        run: |
+          echo "CloudFormation deploy failed. Stack status:"
+          aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" \
+            --query 'Stacks[0].StackStatus' \
+            --output text || true
+
+          echo ""
+          echo "=== Last 50 stack events (most recent first) ==="
+          aws cloudformation describe-stack-events \
+            --stack-name "$STACK_NAME" \
+            --max-items 50 \
+            --query 'StackEvents[*].[Timestamp,LogicalResourceId,ResourceType,ResourceStatus,ResourceStatusReason]' \
+            --output table || true
+
+          echo ""
+          echo "=== Failed resources (if any) ==="
+          aws cloudformation describe-stack-resources \
+            --stack-name "$STACK_NAME" \
+            --query 'StackResources[?ResourceStatus!=`CREATE_COMPLETE` && ResourceStatus!=`UPDATE_COMPLETE`].[LogicalResourceId,ResourceType,ResourceStatus,ResourceStatusReason]' \
+            --output table || true
+
+          exit 1
