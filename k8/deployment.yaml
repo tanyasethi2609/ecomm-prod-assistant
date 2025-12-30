@@ -1,47 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-assistant
+  name: product-assisstant
   labels:
-    app: product-assistant
+    app: product-assisstant
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: product-assistant
+      app: product-assisstant
   template:
     metadata:
       labels:
-        app: product-assistant
+        app: product-assisstant
     spec:
       containers:
-        - name: product-assistant
-          image: 459497895986.dkr.ecr.us-west-1.amazonaws.com/product-assistant:latest
+        - name: product-assisstant
+          image: 459497895986.dkr.ecr.us-west-1.amazonaws.com/product-assisstant:latest
           ports:
             - containerPort: 8000
           env:
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: product-assistant-secrets
+                  name: product-assisstant-secrets
                   key: OPENAI_API_KEY
             - name: GOOGLE_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: product-assistant-secrets
+                  name: product-assisstant-secrets
                   key: GOOGLE_API_KEY
             - name: ASTRA_DB_API_ENDPOINT
               valueFrom:
                 secretKeyRef:
-                  name: product-assistant-secrets
+                  name: product-assisstant-secrets
                   key: ASTRA_DB_API_ENDPOINT
             - name: ASTRA_DB_APPLICATION_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: product-assistant-secrets
+                  name: product-assisstant-secrets
                   key: ASTRA_DB_APPLICATION_TOKEN
             - name: ASTRA_DB_KEYSPACE
               valueFrom:
                 secretKeyRef:
-                  name: product-assistant-secrets
+                  name: product-assisstant-secrets
                   key: ASTRA_DB_KEYSPACE

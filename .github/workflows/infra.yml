@@ -24,6 +24,6 @@ jobs:
         run: |
           aws cloudformation deploy \
             --stack-name product-assistant-cluster \
-            --template-file infra/eks-with-ecr.yaml \
+            --template-file infra/eks-with-ecr.yml \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --region ${{ secrets.AWS_REGION }}

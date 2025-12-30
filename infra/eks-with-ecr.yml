@@ -4,7 +4,7 @@ Description: Standalone EKS Cluster with NodeGroup and ECR Repository
 Parameters:
   ClusterName:
     Type: String
-    Default: product-assistant-cluster-latest
+    Default: product-assisstant-cluster-latest
   NodeInstanceType:
     Type: String
     Default: t3.medium
@@ -13,7 +13,7 @@ Parameters:
     Default: 2
   ECRRepositoryName:
     Type: String
-    Default: product-assistant
+    Default: product-assisstant
 
 Resources:
   ### --- VPC ---
@@ -105,7 +105,7 @@ Resources:
 
   ### --- ECR Repository ---
 
-  ProductAssistantECR:
+  ProductassisstantECR:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: !Ref ECRRepositoryName
@@ -176,9 +176,9 @@ Resources:
 Outputs:
   ECRRepositoryUri:
     Description: URI of the ECR Repository
-    Value: !GetAtt ProductAssistantECR.RepositoryUri
+    Value: !GetAtt ProductassisstantECR.RepositoryUri
     Export:
-      Name: ProductAssistant-ECR-Uri
+      Name: Productassisstant-ECR-Uri
 
   EKSClusterName:
     Description: Name of the EKS Cluster
