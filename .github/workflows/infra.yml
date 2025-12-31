@@ -7,7 +7,7 @@ jobs:
   provision:
     runs-on: ubuntu-latest
     env:
-      STACK_NAME: product-assistant-cluster
+      STACK_NAME: product-assisstant-cluster-latest
       AWS_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
