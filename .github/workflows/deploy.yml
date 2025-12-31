@@ -89,6 +89,7 @@ jobs:
       # Create/Update Kubernetes Secret (for API keys)
       - name: Create Kubernetes secret for API keys
         run: |
+          kubectl delete secret product-assistant-secrets --ignore-not-found
           kubectl create secret generic product-assistant-secrets \
             --from-literal=GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
             --from-literal=ASTRA_DB_API_ENDPOINT=${{ secrets.ASTRA_DB_API_ENDPOINT }} \
