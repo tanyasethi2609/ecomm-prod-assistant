@@ -24,6 +24,7 @@ async def main():
     retriever_tool = next(t for t in tools if t.name == "get_product_info")
     web_tool = next(t for t in tools if t.name == "web_search")
 
+
     # --- Step 1: Try retriever first ---
     query = "Cooker price"
     # query = "iPhone 15"
