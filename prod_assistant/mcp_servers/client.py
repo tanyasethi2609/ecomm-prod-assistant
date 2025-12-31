@@ -38,6 +38,5 @@ async def main():
         web_result = await web_tool.ainvoke({"query": query})
         print("Web Search Result:\n", web_result)
 
-
 if __name__ == "__main__":
     asyncio.run(main())
