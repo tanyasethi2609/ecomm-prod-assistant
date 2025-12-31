@@ -97,6 +97,15 @@ jobs:
           kubectl delete secret product-assistant-secrets --ignore-not-found
           kubectl create secret generic product-assistant-secrets --from-literal=GOOGLE_API_KEY="$GOOGLE_API_KEY" --from-literal=ASTRA_DB_API_ENDPOINT="$ASTRA_DB_API_ENDPOINT" --from-literal=ASTRA_DB_APPLICATION_TOKEN="$ASTRA_DB_APPLICATION_TOKEN" --from-literal=ASTRA_DB_KEYSPACE="$ASTRA_DB_KEYSPACE" --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Debug cluster + namespace
+        run: |
+          kubectl config current-context
+          kubectl config view --minify --output 'jsonpath={..namespace}{"\n"}' || true
+          kubectl get ns
+
+      - name: Verify secrets exist
+        run: |
+          kubectl get secret | grep product || true
       # Deploy manifests
       - name: Apply Kubernetes manifests
         run: |
@@ -109,11 +118,11 @@ jobs:
 
       - name: Patch deployment with new image tag
         env:
-          REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
         run: |
-          kubectl set image deployment/product-assistant product-assistant=$REGISTRY/$REPOSITORY:$IMAGE_TAG
+          kubectl set image deployment/product-assisstant product-assisstant=$REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       # Verify rollout
       - name: Verify Deployment
