@@ -102,6 +102,10 @@ jobs:
         run: |
           kubectl apply -f k8/deployment.yaml
           kubectl apply -f k8/service.yaml
+      - name: List deployments
+        run: |
+          kubectl config get-contexts
+          kubectl get deploy -A
 
       - name: Patch deployment with new image tag
         env:
