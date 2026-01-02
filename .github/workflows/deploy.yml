@@ -128,9 +128,9 @@ jobs:
       - name: Verify Deployment
         run: |
           set -e
-          if ! kubectl rollout status deployment/product-assistant --timeout=120s; then
+          if ! kubectl rollout status deployment/product-assisstant --timeout=120s; then
             echo "Rollout failed, collecting debug info..."
-            kubectl describe deployment product-assistant || true
+            kubectl describe deployment product-assisstant || true
             kubectl get pods -o wide || true
             for pod in $(kubectl get pods -l app=product-assistant -o jsonpath='{.items[*].metadata.name}'); do
               echo "--- Logs for pod: $pod ---"
@@ -141,4 +141,4 @@ jobs:
 
       # Show Service details
       - name: Get Service Info
-        run: kubectl get svc product-assistant-service -o wide
+        run: kubectl get svc product-assisstant-service -o wide
